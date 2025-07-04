@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
-      background: #181f2a;
+      background: #111;
       font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      color: #e5e7eb;
+      color: #fff;
     }
     .container {
       max-width: 1100px;
       margin: 40px auto;
-      background: #232b3a;
+      background: #181818;
       border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.28);
       padding: 32px 24px 24px 24px;
     }
     .header {
@@ -28,7 +28,9 @@
     .header img {
       width: 72px;
       margin-bottom: 8px;
-      filter: drop-shadow(0 0 2px #fff8);
+      border-radius: 50%;
+      border: 2px solid #222;
+      box-shadow: 0 0 8px #000a;
     }
     .header h1 {
       color: #60a5fa;
@@ -60,14 +62,14 @@
     .upload-input {
       padding: 10px;
       border-radius: 8px;
-      border: 1.5px solid #334155;
-      background: #1e293b;
-      color: #e5e7eb;
+      border: 1.5px solid #333;
+      background: #222;
+      color: #fff;
       font-size: 1em;
     }
     .upload-input::file-selector-button {
-      background: #334155;
-      color: #e5e7eb;
+      background: #333;
+      color: #fff;
       border: none;
       border-radius: 6px;
       padding: 6px 16px;
@@ -77,20 +79,20 @@
     }
     .upload-input::file-selector-button:hover {
       background: #60a5fa;
-      color: #181f2a;
+      color: #111;
     }
     .lang-select {
       padding: 10px;
       border-radius: 8px;
-      border: 1.5px solid #334155;
-      background: #1e293b;
-      color: #e5e7eb;
+      border: 1.5px solid #333;
+      background: #222;
+      color: #fff;
       font-size: 1em;
       margin-left: 8px;
     }
     .lang-select option {
-      background: #232b3a;
-      color: #e5e7eb;
+      background: #181818;
+      color: #fff;
     }
     .split-view {
       display: flex;
@@ -100,12 +102,12 @@
     }
     .split-pane {
       flex: 1;
-      background: #1e293b;
+      background: #222;
       border-radius: 12px;
       padding: 18px 16px;
       overflow-y: auto;
       min-height: 350px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
       display: flex;
       flex-direction: column;
     }
@@ -121,7 +123,7 @@
     }
     .split-pane pre {
       background: none;
-      color: #e5e7eb;
+      color: #fff;
       font-size: 1em;
       font-family: inherit;
       white-space: pre-wrap;
@@ -129,8 +131,8 @@
       margin: 0;
       flex: 1;
     }
-    .download-btn {
-      margin-top: 18px;
+    .download-btn, .copy-btn {
+      margin-top: 12px;
       background: #22c55e;
       color: #fff;
       border: none;
@@ -141,9 +143,52 @@
       cursor: pointer;
       transition: background 0.2s;
       width: 100%;
+      margin-bottom: 8px;
     }
-    .download-btn:hover {
+    .download-btn:hover, .copy-btn:hover {
       background: #16a34a;
+    }
+    .format-select {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1.5px solid #333;
+      background: #181818;
+      color: #fff;
+      font-size: 1em;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #333;
+      border-radius: 8px;
+      margin: 18px 0 8px 0;
+      height: 18px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #60a5fa, #22c55e);
+      width: 0%;
+      transition: width 0.5s;
+    }
+    .status-message {
+      text-align: center;
+      margin: 10px 0 0 0;
+      font-size: 1em;
+      color: #60a5fa;
+      min-height: 24px;
+    }
+    .page-select {
+      margin: 0 0 12px 0;
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1.5px solid #333;
+      background: #181818;
+      color: #fff;
+      font-size: 1em;
     }
     @media (max-width: 900px) {
       .split-view {
@@ -167,7 +212,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="https://img.icons8.com/color/96/000000/translate.png" alt="Translate Icon">
+      <img src="avata.jpg" alt="Translate Icon">
       <h1>NZAOO PDF TRANSLATE</h1>
       <p>Dịch tài liệu PDF nhanh chóng, chính xác, hỗ trợ nhiều ngôn ngữ!</p>
     </div>
@@ -280,6 +325,9 @@
         <option>Xhosa</option>
       </select>
     </div>
+    <div class="progress-bar" id="progress-bar"><div class="progress-bar-inner" id="progress-bar-inner"></div></div>
+    <div class="status-message" id="status-message"></div>
+    <select class="page-select" id="page-select" style="display:none;"></select>
     <div class="split-view" id="split-view" style="display:none;">
       <div class="split-pane">
         <h3><i class="fa-solid fa-eye"></i> Nội dung gốc</h3>
@@ -288,6 +336,12 @@
       <div class="split-pane">
         <h3><i class="fa-solid fa-language"></i> Bản dịch (<span id="target-lang-label">Vietnamese</span>)</h3>
         <pre id="translated-content">Bản dịch sẽ hiển thị ở đây...</pre>
+        <button class="copy-btn" id="copy-btn"><i class="fa-solid fa-copy"></i> Sao chép bản dịch</button>
+        <select class="format-select" id="format-select">
+          <option value="txt">TXT</option>
+          <option value="pdf">PDF</option>
+          <option value="docx">DOCX</option>
+        </select>
         <button class="download-btn" id="download-btn"><i class="fa-solid fa-download"></i> Tải bản dịch</button>
       </div>
     </div>
@@ -297,9 +351,17 @@
     </div>
   </div>
   <script>
-    // Demo: nội dung PDF giả lập
-    const demoOriginal = `This is a sample PDF content.\nYou can see the original text here.\nEach paragraph will be shown as in the PDF.\n\nYou can scroll to see more content.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`;
-    const demoTranslated = `Đây là nội dung mẫu của file PDF.\nBạn có thể xem văn bản gốc ở đây.\nMỗi đoạn sẽ hiển thị như trong PDF.\n\nBạn có thể cuộn để xem thêm nội dung.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`;
+    // Demo: nhiều trang PDF giả lập
+    const demoPages = [
+      `Trang 1: Đây là nội dung mẫu của file PDF.\nBạn có thể xem văn bản gốc ở đây.\nMỗi đoạn sẽ hiển thị như trong PDF.`,
+      `Trang 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+      `Trang 3: Đây là trang cuối cùng của file PDF mẫu.\nBạn có thể chuyển trang để xem nội dung khác.`
+    ];
+    const demoTranslations = [
+      `Page 1: This is a sample PDF content.\nYou can see the original text here.\nEach paragraph will be shown as in the PDF.`,
+      `Page 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+      `Page 3: This is the last page of the sample PDF.\nYou can switch pages to see other content.`
+    ];
 
     const pdfInput = document.getElementById('pdf-file');
     const splitView = document.getElementById('split-view');
@@ -309,31 +371,94 @@
     const targetLang = document.getElementById('target-lang');
     const targetLangLabel = document.getElementById('target-lang-label');
     const downloadBtn = document.getElementById('download-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const formatSelect = document.getElementById('format-select');
+    const progressBar = document.getElementById('progress-bar');
+    const progressBarInner = document.getElementById('progress-bar-inner');
+    const statusMessage = document.getElementById('status-message');
+    const pageSelect = document.getElementById('page-select');
+
+    let currentPage = 0;
 
     pdfInput.onchange = function() {
       if (pdfInput.files.length > 0) {
         splitView.style.display = 'flex';
         placeholder.style.display = 'none';
-        // Hiển thị nội dung demo
-        originalContent.textContent = demoOriginal;
-        translatedContent.textContent = demoTranslated;
-        targetLangLabel.textContent = targetLang.value;
+        pageSelect.style.display = 'block';
+        // Tạo select trang
+        pageSelect.innerHTML = '';
+        for (let i = 0; i < demoPages.length; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = 'Trang ' + (i+1);
+          pageSelect.appendChild(opt);
+        }
+        currentPage = 0;
+        showPage(currentPage);
+        statusMessage.textContent = '';
       } else {
         splitView.style.display = 'none';
         placeholder.style.display = 'block';
+        pageSelect.style.display = 'none';
+        statusMessage.textContent = '';
       }
+    };
+    pageSelect.onchange = function() {
+      currentPage = parseInt(pageSelect.value);
+      showPage(currentPage);
     };
     targetLang.onchange = function() {
       targetLangLabel.textContent = targetLang.value;
     };
+    function showPage(pageIdx) {
+      originalContent.textContent = demoPages[pageIdx];
+      translatedContent.textContent = demoTranslations[pageIdx];
+    }
+    // Copy bản dịch
+    copyBtn.onclick = function() {
+      navigator.clipboard.writeText(translatedContent.textContent);
+      statusMessage.textContent = 'Đã sao chép bản dịch!';
+      setTimeout(()=>statusMessage.textContent='', 2000);
+    };
+    // Tải bản dịch
     downloadBtn.onclick = function() {
-      // Tạo file txt demo để tải về
-      const blob = new Blob([translatedContent.textContent], {type: 'text/plain'});
+      let ext = formatSelect.value;
+      let content = translatedContent.textContent;
+      let mime = 'text/plain';
+      let filename = 'translated.'+ext;
+      if (ext==='pdf') mime = 'application/pdf';
+      if (ext==='docx') mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      const blob = new Blob([content], {type: mime});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'translated.txt';
+      a.download = filename;
       a.click();
+      statusMessage.textContent = 'Đã tải về bản dịch ('+ext.toUpperCase()+')!';
+      setTimeout(()=>statusMessage.textContent='', 2000);
     };
+    // Demo progress bar khi dịch
+    function startDemoProgress() {
+      progressBar.style.display = 'block';
+      progressBarInner.style.width = '0%';
+      let percent = 0;
+      statusMessage.textContent = 'Đang dịch...';
+      let interval = setInterval(()=>{
+        percent += 10;
+        progressBarInner.style.width = percent+'%';
+        if (percent>=100) {
+          clearInterval(interval);
+          progressBar.style.display = 'none';
+          statusMessage.textContent = 'Dịch thành công!';
+          setTimeout(()=>statusMessage.textContent='', 2000);
+        }
+      }, 200);
+    }
+    // Khi chọn file, tự động chạy progress bar demo
+    pdfInput.addEventListener('change', function() {
+      if (pdfInput.files.length > 0) {
+        startDemoProgress();
+      }
+    });
   </script>
 </body>
 </html> 
