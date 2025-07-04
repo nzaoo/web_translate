@@ -7,17 +7,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
-      background: #f8fafc;
+      background: #181f2a;
       font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
       padding: 0;
+      color: #e5e7eb;
     }
     .container {
       max-width: 1100px;
       margin: 40px auto;
-      background: #fff;
+      background: #232b3a;
       border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
       padding: 32px 24px 24px 24px;
     }
     .header {
@@ -27,15 +28,16 @@
     .header img {
       width: 72px;
       margin-bottom: 8px;
+      filter: drop-shadow(0 0 2px #fff8);
     }
     .header h1 {
-      color: #2563eb;
+      color: #60a5fa;
       margin: 0 0 8px 0;
       font-size: 2em;
       letter-spacing: 1px;
     }
     .header p {
-      color: #334155;
+      color: #cbd5e1;
       margin: 0;
       font-size: 1.1em;
     }
@@ -49,7 +51,7 @@
     }
     .upload-label {
       font-weight: 600;
-      color: #2563eb;
+      color: #60a5fa;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -58,17 +60,37 @@
     .upload-input {
       padding: 10px;
       border-radius: 8px;
-      border: 1.5px solid #cbd5e1;
-      background: #f1f5f9;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #e5e7eb;
       font-size: 1em;
+    }
+    .upload-input::file-selector-button {
+      background: #334155;
+      color: #e5e7eb;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 16px;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .upload-input::file-selector-button:hover {
+      background: #60a5fa;
+      color: #181f2a;
     }
     .lang-select {
       padding: 10px;
       border-radius: 8px;
-      border: 1.5px solid #cbd5e1;
-      background: #f1f5f9;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #e5e7eb;
       font-size: 1em;
       margin-left: 8px;
+    }
+    .lang-select option {
+      background: #232b3a;
+      color: #e5e7eb;
     }
     .split-view {
       display: flex;
@@ -78,17 +100,17 @@
     }
     .split-pane {
       flex: 1;
-      background: #f1f5f9;
+      background: #1e293b;
       border-radius: 12px;
       padding: 18px 16px;
       overflow-y: auto;
       min-height: 350px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
       display: flex;
       flex-direction: column;
     }
     .split-pane h3 {
-      color: #2563eb;
+      color: #60a5fa;
       margin-top: 0;
       margin-bottom: 12px;
       font-size: 1.1em;
@@ -99,7 +121,7 @@
     }
     .split-pane pre {
       background: none;
-      color: #334155;
+      color: #e5e7eb;
       font-size: 1em;
       font-family: inherit;
       white-space: pre-wrap;
@@ -163,8 +185,48 @@
         <option>Russian</option>
         <option>Korean</option>
         <option>Thai</option>
+        <option>Italian</option>
+        <option>Portuguese</option>
+        <option>Arabic</option>
+        <option>Hindi</option>
+        <option>Indonesian</option>
+        <option>Malay</option>
+        <option>Turkish</option>
+        <option>Polish</option>
+        <option>Ukrainian</option>
+        <option>Greek</option>
+        <option>Hebrew</option>
+        <option>Romanian</option>
+        <option>Dutch</option>
+        <option>Hungarian</option>
+        <option>Czech</option>
+        <option>Slovak</option>
+        <option>Bulgarian</option>
+        <option>Finnish</option>
+        <option>Swedish</option>
+        <option>Danish</option>
+        <option>Norwegian</option>
+        <option>Croatian</option>
+        <option>Serbian</option>
+        <option>Slovenian</option>
+        <option>Estonian</option>
+        <option>Latvian</option>
+        <option>Lithuanian</option>
+        <option>Filipino</option>
+        <option>Persian</option>
+        <option>Urdu</option>
+        <option>Bengali</option>
+        <option>Tamil</option>
+        <option>Telugu</option>
+        <option>Marathi</option>
+        <option>Gujarati</option>
+        <option>Punjabi</option>
+        <option>Swahili</option>
+        <option>Afrikaans</option>
+        <option>Zulu</option>
+        <option>Xhosa</option>
       </select>
-      <span style="font-weight:600; color:#2563eb;">→</span>
+      <span style="font-weight:600; color:#60a5fa;">→</span>
       <select class="lang-select" id="target-lang">
         <option>Vietnamese</option>
         <option>English</option>
@@ -176,6 +238,46 @@
         <option>Russian</option>
         <option>Korean</option>
         <option>Thai</option>
+        <option>Italian</option>
+        <option>Portuguese</option>
+        <option>Arabic</option>
+        <option>Hindi</option>
+        <option>Indonesian</option>
+        <option>Malay</option>
+        <option>Turkish</option>
+        <option>Polish</option>
+        <option>Ukrainian</option>
+        <option>Greek</option>
+        <option>Hebrew</option>
+        <option>Romanian</option>
+        <option>Dutch</option>
+        <option>Hungarian</option>
+        <option>Czech</option>
+        <option>Slovak</option>
+        <option>Bulgarian</option>
+        <option>Finnish</option>
+        <option>Swedish</option>
+        <option>Danish</option>
+        <option>Norwegian</option>
+        <option>Croatian</option>
+        <option>Serbian</option>
+        <option>Slovenian</option>
+        <option>Estonian</option>
+        <option>Latvian</option>
+        <option>Lithuanian</option>
+        <option>Filipino</option>
+        <option>Persian</option>
+        <option>Urdu</option>
+        <option>Bengali</option>
+        <option>Tamil</option>
+        <option>Telugu</option>
+        <option>Marathi</option>
+        <option>Gujarati</option>
+        <option>Punjabi</option>
+        <option>Swahili</option>
+        <option>Afrikaans</option>
+        <option>Zulu</option>
+        <option>Xhosa</option>
       </select>
     </div>
     <div class="split-view" id="split-view" style="display:none;">
