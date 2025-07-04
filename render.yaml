@@ -3,6 +3,6 @@ services:
     name: nzaoo-translate-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python backend.py
+    startCommand: python app.py
     plan: free
     autoDeploy: true
