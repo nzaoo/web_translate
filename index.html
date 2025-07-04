@@ -391,7 +391,7 @@
         progressBarInner.style.width = '0%';
         statusMessage.textContent = 'Đang tải và phân tích file PDF...';
         try {
-          const res = await fetch('http://127.0.0.1:5000/extract', {
+          const res = await fetch('https://web-translate.onrender.com/extract', {
             method: 'POST',
             body: formData
           });
@@ -443,7 +443,7 @@
       } else {
         translatedContent.textContent = 'Đang dịch...';
         try {
-          const res = await fetch('http://127.0.0.1:5000/translate', {
+          const res = await fetch('https://web-translate.onrender.com/translate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -513,7 +513,7 @@
       summaryContent.textContent = 'Đang tóm tắt...';
       summaryMessage.textContent = '';
       try {
-        const res = await fetch('http://127.0.0.1:5000/summarize', {
+        const res = await fetch('https://web-translate.onrender.com/summarize', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({text: pdfPages[currentPage]})
@@ -530,7 +530,7 @@
       summaryAllPane.style.display = 'block';
       summaryAllContent.textContent = 'Đang tóm tắt toàn bộ...';
       try {
-        const res = await fetch('http://127.0.0.1:5000/summarize', {
+        const res = await fetch('https://web-translate.onrender.com/summarize', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({text: pdfPages.join('\n')})
