@@ -5,6 +5,8 @@ from fpdf import FPDF
 from docx import Document
 import tempfile
 import os
+from PIL import Image
+import base64
 
 # Chuẩn hóa tên ngôn ngữ
 LANG_CODE_TO_NAME = {code: name.title() for code, name in LANGUAGES.items()}
@@ -48,25 +50,88 @@ def export_to_word(text, output_path):
         doc.add_paragraph(line)
     doc.save(output_path)
 
-# Giao diện Streamlit
-def main():
-    st.set_page_config(page_title="Dịch PDF Đa Ngôn Ngữ", layout="wide")
-    st.title("🌏 Dịch PDF Đa Ngôn Ngữ - Song Ngữ")
-
-    st.markdown("""
+# ====== CUSTOM CSS ======
+st.markdown(
+    """
     <style>
-        .main .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-        .stTextArea textarea {
-            font-size: 16px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
+    .main {
+        background-color: #f8fafc;
+    }
+    .stButton>button {
+        background-color: #2563eb;
+        color: white;
+        border-radius: 8px;
+        height: 3em;
+        font-weight: 600;
+        font-size: 1.1em;
+        margin-top: 1em;
+    }
+    .stButton>button:hover {
+        background-color: #1d4ed8;
+        color: #fff;
+    }
+    .stFileUploader>div>div {
+        border-radius: 8px;
+        border: 2px dashed #2563eb;
+        background: #e0e7ef;
+    }
+    .stSelectbox>div>div {
+        border-radius: 8px;
+    }
+    .stSidebar {
+        background-color: #e0e7ef;
+    }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
+# ====== SIDEBAR ======
+st.sidebar.image("https://img.icons8.com/color/96/000000/translate.png", width=80)
+st.sidebar.title("NZAOO PDF Translate")
+st.sidebar.markdown("""
+**Hướng dẫn sử dụng:**
+1. Chọn ngôn ngữ nguồn và ngôn ngữ đích.
+2. Tải lên file PDF cần dịch.
+3. Nhấn nút **Dịch** và chờ kết quả.
 
-    uploaded_file = st.file_uploader("Chọn file PDF", type=["pdf"])
+Liên hệ hỗ trợ: [nzaoo@gmail.com](mailto:nzaoo@gmail.com)
+""")
+# ====== HEADER ======
+st.markdown(
+    """
+    <div style='text-align:center;'>
+        <img src='https://img.icons8.com/color/96/000000/translate.png' width='80'/>
+        <h1 style='color:#2563eb; margin-bottom:0;'>NZAOO PDF TRANSLATE</h1>
+        <p style='font-size:1.2em; color:#334155;'>Dịch tài liệu PDF nhanh chóng, chính xác, hỗ trợ nhiều ngôn ngữ!</p>
+    </div>
+    <hr style='border:1px solid #2563eb;'/>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ====== MAIN LAYOUT ======
+st.write("")
+col1, col2 = st.columns(2)
+with col1:
+    source_lang = st.selectbox(
+        "🌐 Ngôn ngữ gốc",
+        sorted(LANG_NAME_TO_CODE.keys()),
+        index=sorted(LANG_NAME_TO_CODE.keys()).index("English")
+    )
+with col2:
+    target_lang = st.selectbox(
+        "🌍 Dịch sang",
+        sorted(LANG_NAME_TO_CODE.keys()),
+        index=sorted(LANG_NAME_TO_CODE.keys()).index("Vietnamese")
+    )
+
+st.markdown("""
+#### 📄 Tải lên file PDF cần dịch
+""")
+uploaded_file = st.file_uploader("Chọn file PDF", type=["pdf"])
+
+if uploaded_file is not None:
+    st.success("Đã tải lên: " + uploaded_file.name)
 
     col1, col2, col3 = st.columns([2,2,2])
     with col1:
@@ -78,8 +143,8 @@ def main():
 
     output_filename = st.text_input("Tên file đầu ra", value="translated_output.pdf" if output_type=="PDF" else "translated_output.docx")
 
-    if st.button("Dịch và Tải về", use_container_width=True) and uploaded_file:
-        with st.spinner("Đang trích xuất và dịch..."):
+    if st.button("🚀 Dịch tài liệu PDF"):
+        with st.spinner("Đang dịch, vui lòng chờ..."):
             # Lưu file tạm
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 tmp.write(uploaded_file.read())
@@ -104,18 +169,15 @@ def main():
                     else:
                         export_to_word(translated_text, out_tmp.name)
                     out_tmp.flush()
-                    st.success("Dịch thành công! Bấm để tải về:")
+                    st.success("✅ Dịch thành công!")
                     with open(out_tmp.name, "rb") as f:
                         st.download_button(
-                            label="Tải file đã dịch",
+                            label="⬇️ Tải file PDF đã dịch",
                             data=f,
-                            file_name=output_filename,
-                            mime="application/pdf" if output_type=="PDF" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            file_name="translated_" + uploaded_file.name,
+                            mime="application/pdf"
                         )
             os.remove(tmp_path)
 
     elif st.button("Dịch và Tải về", use_container_width=True) and not uploaded_file:
-        st.warning("Vui lòng chọn file PDF trước khi dịch.")
-
-if __name__ == "__main__":
-    main() 
+        st.warning("Vui lòng chọn file PDF trước khi dịch.") 
