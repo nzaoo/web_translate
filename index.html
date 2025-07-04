@@ -362,17 +362,8 @@
     </div>
   </div>
   <script>
-    // Demo: nhiều trang PDF giả lập
-    const demoPages = [
-      `Trang 1: Đây là nội dung mẫu của file PDF.\nBạn có thể xem văn bản gốc ở đây.\nMỗi đoạn sẽ hiển thị như trong PDF.`,
-      `Trang 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
-      `Trang 3: Đây là trang cuối cùng của file PDF mẫu.\nBạn có thể chuyển trang để xem nội dung khác.`
-    ];
-    const demoTranslations = [
-      `Page 1: This is a sample PDF content.\nYou can see the original text here.\nEach paragraph will be shown as in the PDF.`,
-      `Page 2: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
-      `Page 3: This is the last page of the sample PDF.\nYou can switch pages to see other content.`
-    ];
+    let pdfPages = [];
+    let translatedPages = [];
 
     const pdfInput = document.getElementById('pdf-file');
     const splitView = document.getElementById('split-view');
@@ -391,22 +382,44 @@
 
     let currentPage = 0;
 
-    pdfInput.onchange = function() {
+    pdfInput.onchange = async function() {
       if (pdfInput.files.length > 0) {
-        splitView.style.display = 'flex';
-        placeholder.style.display = 'none';
-        pageSelect.style.display = 'block';
-        // Tạo select trang
-        pageSelect.innerHTML = '';
-        for (let i = 0; i < demoPages.length; i++) {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.textContent = 'Trang ' + (i+1);
-          pageSelect.appendChild(opt);
+        // Gửi file lên backend để lấy nội dung các trang
+        const formData = new FormData();
+        formData.append('file', pdfInput.files[0]);
+        progressBar.style.display = 'block';
+        progressBarInner.style.width = '0%';
+        statusMessage.textContent = 'Đang tải và phân tích file PDF...';
+        try {
+          const res = await fetch('http://127.0.0.1:5000/extract', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.pages) {
+            pdfPages = data.pages;
+            translatedPages = Array(pdfPages.length).fill('');
+            // Tạo select trang
+            pageSelect.innerHTML = '';
+            for (let i = 0; i < pdfPages.length; i++) {
+              const opt = document.createElement('option');
+              opt.value = i;
+              opt.textContent = 'Trang ' + (i+1);
+              pageSelect.appendChild(opt);
+            }
+            splitView.style.display = 'flex';
+            placeholder.style.display = 'none';
+            pageSelect.style.display = 'block';
+            currentPage = 0;
+            await showPage(currentPage);
+            statusMessage.textContent = '';
+          } else {
+            statusMessage.textContent = 'Không thể đọc file PDF!';
+          }
+        } catch (e) {
+          statusMessage.textContent = 'Lỗi khi tải file PDF!';
         }
-        currentPage = 0;
-        showPage(currentPage);
-        statusMessage.textContent = '';
+        progressBar.style.display = 'none';
       } else {
         splitView.style.display = 'none';
         placeholder.style.display = 'block';
@@ -414,6 +427,7 @@
         statusMessage.textContent = '';
       }
     };
+
     pageSelect.onchange = function() {
       currentPage = parseInt(pageSelect.value);
       showPage(currentPage);
@@ -421,9 +435,45 @@
     targetLang.onchange = function() {
       targetLangLabel.textContent = targetLang.value;
     };
-    function showPage(pageIdx) {
-      originalContent.textContent = demoPages[pageIdx];
-      translatedContent.textContent = demoTranslations[pageIdx];
+    async function showPage(pageIdx) {
+      originalContent.textContent = pdfPages[pageIdx] || '';
+      // Nếu đã dịch rồi thì hiển thị, chưa thì gọi backend dịch
+      if (translatedPages[pageIdx]) {
+        translatedContent.textContent = translatedPages[pageIdx];
+      } else {
+        translatedContent.textContent = 'Đang dịch...';
+        try {
+          const res = await fetch('http://127.0.0.1:5000/translate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              text: pdfPages[pageIdx],
+              src: 'auto',
+              dest: getLangCode(targetLang.value)
+            })
+          });
+          const data = await res.json();
+          translatedPages[pageIdx] = data.translated || '';
+          translatedContent.textContent = translatedPages[pageIdx];
+        } catch (e) {
+          translatedContent.textContent = 'Lỗi dịch!';
+        }
+      }
+    }
+    // Hàm chuyển tên ngôn ngữ sang mã code (ví dụ: Vietnamese -> vi)
+    function getLangCode(name) {
+      const map = {
+        'Vietnamese': 'vi', 'English': 'en', 'Chinese': 'zh-cn', 'Japanese': 'ja', 'French': 'fr', 'German': 'de',
+        'Spanish': 'es', 'Russian': 'ru', 'Korean': 'ko', 'Thai': 'th', 'Italian': 'it', 'Portuguese': 'pt',
+        'Arabic': 'ar', 'Hindi': 'hi', 'Indonesian': 'id', 'Malay': 'ms', 'Turkish': 'tr', 'Polish': 'pl',
+        'Ukrainian': 'uk', 'Greek': 'el', 'Hebrew': 'he', 'Romanian': 'ro', 'Dutch': 'nl', 'Hungarian': 'hu',
+        'Czech': 'cs', 'Slovak': 'sk', 'Bulgarian': 'bg', 'Finnish': 'fi', 'Swedish': 'sv', 'Danish': 'da',
+        'Norwegian': 'no', 'Croatian': 'hr', 'Serbian': 'sr', 'Slovenian': 'sl', 'Estonian': 'et', 'Latvian': 'lv',
+        'Lithuanian': 'lt', 'Filipino': 'tl', 'Persian': 'fa', 'Urdu': 'ur', 'Bengali': 'bn', 'Tamil': 'ta',
+        'Telugu': 'te', 'Marathi': 'mr', 'Gujarati': 'gu', 'Punjabi': 'pa', 'Swahili': 'sw', 'Afrikaans': 'af',
+        'Zulu': 'zu', 'Xhosa': 'xh'
+      };
+      return map[name] || 'vi';
     }
     // Copy bản dịch
     copyBtn.onclick = function() {
@@ -448,37 +498,8 @@
       setTimeout(()=>statusMessage.textContent='', 2000);
     };
     // Demo progress bar khi dịch
-    function startDemoProgress() {
-      progressBar.style.display = 'block';
-      progressBarInner.style.width = '0%';
-      let percent = 0;
-      statusMessage.textContent = 'Đang dịch...';
-      let interval = setInterval(()=>{
-        percent += 10;
-        progressBarInner.style.width = percent+'%';
-        if (percent>=100) {
-          clearInterval(interval);
-          progressBar.style.display = 'none';
-          statusMessage.textContent = 'Dịch thành công!';
-          setTimeout(()=>statusMessage.textContent='', 2000);
-        }
-      }, 200);
-    }
     // Khi chọn file, tự động chạy progress bar demo
-    pdfInput.addEventListener('change', function() {
-      if (pdfInput.files.length > 0) {
-        startDemoProgress();
-      }
-    });
-
     // Demo tóm tắt từng trang và toàn bộ
-    const demoSummaries = [
-      'Tóm tắt trang 1: Đây là trang giới thiệu nội dung PDF mẫu.',
-      'Tóm tắt trang 2: Trang này chứa đoạn văn bản mẫu tiếng Anh.',
-      'Tóm tắt trang 3: Trang cuối cùng, kết thúc tài liệu.'
-    ];
-    const demoSummaryAll = 'Tóm tắt toàn bộ: Tài liệu PDF mẫu gồm 3 trang, trình bày nội dung song ngữ và các đoạn văn bản mẫu.';
-
     const summarizeBtn = document.getElementById('summarize-btn');
     const summaryPane = document.getElementById('summary-pane');
     const summaryContent = document.getElementById('summary-content');
@@ -487,22 +508,38 @@
     const summaryAllPane = document.getElementById('summary-all-pane');
     const summaryAllContent = document.getElementById('summary-all-content');
 
-    summarizeBtn.onclick = function() {
+    summarizeBtn.onclick = async function() {
       summaryPane.style.display = 'block';
       summaryContent.textContent = 'Đang tóm tắt...';
       summaryMessage.textContent = '';
-      setTimeout(function() {
-        summaryContent.textContent = demoSummaries[currentPage];
+      try {
+        const res = await fetch('http://127.0.0.1:5000/summarize', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: pdfPages[currentPage]})
+        });
+        const data = await res.json();
+        summaryContent.textContent = data.summary || '';
         summaryMessage.textContent = 'Đã tóm tắt trang này!';
         setTimeout(()=>summaryMessage.textContent='', 2000);
-      }, 1200);
+      } catch (e) {
+        summaryContent.textContent = 'Lỗi tóm tắt!';
+      }
     };
-    summarizeAllBtn.onclick = function() {
+    summarizeAllBtn.onclick = async function() {
       summaryAllPane.style.display = 'block';
       summaryAllContent.textContent = 'Đang tóm tắt toàn bộ...';
-      setTimeout(function() {
-        summaryAllContent.textContent = demoSummaryAll;
-      }, 1500);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/summarize', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: pdfPages.join('\n')})
+        });
+        const data = await res.json();
+        summaryAllContent.textContent = data.summary || '';
+      } catch (e) {
+        summaryAllContent.textContent = 'Lỗi tóm tắt!';
+      }
     };
   </script>
 </body>
