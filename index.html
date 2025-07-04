@@ -343,7 +343,18 @@
           <option value="docx">DOCX</option>
         </select>
         <button class="download-btn" id="download-btn"><i class="fa-solid fa-download"></i> Tải bản dịch</button>
+        <button class="copy-btn" id="summarize-btn" style="background:#6366f1;"><i class="fa-solid fa-align-left"></i> Tóm tắt trang này</button>
+        <div class="status-message" id="summary-message"></div>
+        <div class="split-pane" id="summary-pane" style="background:#181818; margin-top:12px; display:none;">
+          <h3><i class="fa-solid fa-list"></i> Tóm tắt</h3>
+          <pre id="summary-content">Tóm tắt sẽ hiển thị ở đây...</pre>
+        </div>
       </div>
+    </div>
+    <button class="copy-btn" id="summarize-all-btn" style="background:#6366f1; width:100%; margin-top:18px;"><i class="fa-solid fa-align-left"></i> Tóm tắt toàn bộ tài liệu</button>
+    <div class="split-pane" id="summary-all-pane" style="background:#181818; margin-top:12px; display:none;">
+      <h3><i class="fa-solid fa-list"></i> Tóm tắt toàn bộ tài liệu</h3>
+      <pre id="summary-all-content">Tóm tắt toàn bộ sẽ hiển thị ở đây...</pre>
     </div>
     <div id="placeholder" style="text-align:center; color:#64748b; margin-top:40px;">
       <i class="fa-solid fa-arrow-up-from-bracket fa-2x"></i><br>
@@ -459,6 +470,40 @@
         startDemoProgress();
       }
     });
+
+    // Demo tóm tắt từng trang và toàn bộ
+    const demoSummaries = [
+      'Tóm tắt trang 1: Đây là trang giới thiệu nội dung PDF mẫu.',
+      'Tóm tắt trang 2: Trang này chứa đoạn văn bản mẫu tiếng Anh.',
+      'Tóm tắt trang 3: Trang cuối cùng, kết thúc tài liệu.'
+    ];
+    const demoSummaryAll = 'Tóm tắt toàn bộ: Tài liệu PDF mẫu gồm 3 trang, trình bày nội dung song ngữ và các đoạn văn bản mẫu.';
+
+    const summarizeBtn = document.getElementById('summarize-btn');
+    const summaryPane = document.getElementById('summary-pane');
+    const summaryContent = document.getElementById('summary-content');
+    const summaryMessage = document.getElementById('summary-message');
+    const summarizeAllBtn = document.getElementById('summarize-all-btn');
+    const summaryAllPane = document.getElementById('summary-all-pane');
+    const summaryAllContent = document.getElementById('summary-all-content');
+
+    summarizeBtn.onclick = function() {
+      summaryPane.style.display = 'block';
+      summaryContent.textContent = 'Đang tóm tắt...';
+      summaryMessage.textContent = '';
+      setTimeout(function() {
+        summaryContent.textContent = demoSummaries[currentPage];
+        summaryMessage.textContent = 'Đã tóm tắt trang này!';
+        setTimeout(()=>summaryMessage.textContent='', 2000);
+      }, 1200);
+    };
+    summarizeAllBtn.onclick = function() {
+      summaryAllPane.style.display = 'block';
+      summaryAllContent.textContent = 'Đang tóm tắt toàn bộ...';
+      setTimeout(function() {
+        summaryAllContent.textContent = demoSummaryAll;
+      }, 1500);
+    };
   </script>
 </body>
 </html> 
